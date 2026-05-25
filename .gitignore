@@ -1,0 +1,19 @@
+# Node
+frontend/node_modules
+
+# Python
+backend/venv
+__pycache__/
+*.pyc
+
+# Environment variables
+backend/.env
+
+# Logs
+logs/*.jsonl
+
+# Vite
+dist/
+
+# OS files
+.DS_Store
