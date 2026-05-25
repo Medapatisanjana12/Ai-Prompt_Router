@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { Bot, Send, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+
 function App() {
 
+  // -----------------------------
+  // STATES
+  // -----------------------------
+
   const [message, setMessage] = useState("");
+
   const [loading, setLoading] = useState(false);
+
   const [messages, setMessages] = useState([
     {
       type: "bot",
@@ -12,80 +19,97 @@ function App() {
     }
   ]);
 
+  // -----------------------------
   // SEND MESSAGE
+  // -----------------------------
 
   const sendMessage = async () => {
 
-  if (!message.trim()) return;
+    if (!message.trim()) return;
 
-  // User message
+    // User message
 
-  const userMessage = {
-    type: "user",
-    text: message
-  };
-
-  // Add user message immediately
-
-  setMessages((prev) => [...prev, userMessage]);
-  setLoading(false);
-
-  // Save current message
-
-  const currentMessage = message;
-
-  // Clear input
-
-  setMessage("");
-  setLoading(true);
-  try {
-
-    // API CALL
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/chat",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: currentMessage
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    // Bot response
-
-    const botMessage = {
-  type: "bot",
-  text: data.response,
-  intent: data.intent,
-  confidence: data.confidence
-};
-
-    // Add bot response
-
-    setMessages((prev) => [
-      ...prev,
-      botMessage
-    ]);
-
-  } catch (error) {
-
-    const errorMessage = {
-      type: "bot",
-      text: "Error connecting to backend."
+    const userMessage = {
+      type: "user",
+      text: message
     };
 
-    setMessages((prev) => [
-      ...prev,
-      errorMessage
-    ]);
-  }
-};
+    // Add user message immediately
+
+    setMessages((prev) => [...prev, userMessage]);
+
+    // Store current message
+
+    const currentMessage = message;
+
+    // Clear input
+
+    setMessage("");
+
+    // Start loading
+
+    setLoading(true);
+
+    try {
+
+      // API CALL
+
+      const response = await fetch(
+        "https://ai-prompt-router.onrender.com/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: currentMessage
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      // Bot response
+
+      const botMessage = {
+        type: "bot",
+        text: data.response,
+        intent: data.intent,
+        confidence: data.confidence
+      };
+
+      // Add bot response
+
+      setMessages((prev) => [
+        ...prev,
+        botMessage
+      ]);
+
+    } catch (error) {
+
+      console.log(error);
+
+      const errorMessage = {
+        type: "bot",
+        text: "Error connecting to backend."
+      };
+
+      setMessages((prev) => [
+        ...prev,
+        errorMessage
+      ]);
+
+    } finally {
+
+      // Stop loading
+
+      setLoading(false);
+    }
+  };
+
+  // -----------------------------
+  // UI
+  // -----------------------------
 
   return (
 
@@ -94,6 +118,8 @@ function App() {
       {/* SIDEBAR */}
 
       <div className="w-72 bg-slate-900 border-r border-slate-800 p-6 hidden md:flex flex-col">
+
+        {/* LOGO */}
 
         <div className="flex items-center gap-3 mb-10">
 
@@ -115,7 +141,7 @@ function App() {
 
         </div>
 
-        {/* Supported Experts */}
+        {/* SUPPORTED EXPERTS */}
 
         <div className="bg-slate-800 rounded-2xl p-5 mb-6">
 
@@ -134,7 +160,7 @@ function App() {
 
         </div>
 
-        {/* AI Routing */}
+        {/* AI ROUTING */}
 
         <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-5">
 
@@ -200,33 +226,60 @@ function App() {
                   }`}
                 >
 
+                  {/* INTENT BADGES */}
+
                   {msg.type === "bot" && msg.intent && (
 
-  <div className="flex gap-3 mb-3">
+                    <div className="flex gap-3 mb-3">
 
-    <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">
-      {msg.intent}
-    </span>
+                      <span className="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">
+                        {msg.intent}
+                      </span>
 
-    <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">
-      {(msg.confidence * 100).toFixed(1)}%
-    </span>
+                      <span className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">
+                        {(msg.confidence * 100).toFixed(1)}%
+                      </span>
 
-  </div>
-)}
+                    </div>
+                  )}
 
-<div className="prose prose-invert max-w-none">
+                  {/* MESSAGE */}
 
-  <ReactMarkdown>
-    {msg.text}
-  </ReactMarkdown>
+                  <div className="prose prose-invert max-w-none">
 
-</div>
+                    <ReactMarkdown>
+                      {msg.text}
+                    </ReactMarkdown>
+
+                  </div>
 
                 </div>
 
               </div>
             ))}
+
+            {/* LOADING */}
+
+            {loading && (
+
+              <div className="flex justify-start">
+
+                <div className="bg-slate-800 border border-slate-700 px-5 py-4 rounded-3xl">
+
+                  <div className="flex gap-2">
+
+                    <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
+
+                    <div className="w-3 h-3 bg-white rounded-full animate-bounce delay-100"></div>
+
+                    <div className="w-3 h-3 bg-white rounded-full animate-bounce delay-200"></div>
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
 
           </div>
 
@@ -262,7 +315,7 @@ function App() {
       </div>
 
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
