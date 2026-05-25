@@ -142,7 +142,11 @@ def log_route(intent_data, message, final_response):
 # -----------------------------
 # API Route
 # -----------------------------
-
+@app.get("/")
+def home():
+    return {
+        "message": "AI Prompt Router API is running 🚀"
+    }
 @app.post("/chat")
 def chat(req: MessageRequest):
 
