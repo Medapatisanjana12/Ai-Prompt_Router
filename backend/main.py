@@ -136,7 +136,7 @@ def log_route(intent_data, message, final_response):
         "final_response": final_response
     }
 
-    with open("../logs/route_log.jsonl", "a") as f:
+    with open("route_log.jsonl", "a") as f:
         f.write(json.dumps(log_entry) + "\n")
 
 # -----------------------------
